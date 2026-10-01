@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurante {
+  id       String   @id @default(uuid())
+  nombre   String
+  creadoEn DateTime @default(now()) @map("creado_en")
+
+  mesas     Mesa[]
+  menuItems MenuItem[]
+  cuentas   Cuenta[]
+  pedidos   Pedido[]
+  eventos   Evento[]
+  staffCaja StaffCaja[]
+
+  @@map("restaurantes")
+}
+
+model Mesa {
+  id            String   @id @default(uuid())
+  restauranteId String   @map("restaurante_id")
+  etiqueta      String
+  qrToken       String   @unique @map("qr_token")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+
+  restaurante Restaurante @relation(fields: [restauranteId], references: [id])
+  cuentas     Cuenta[]
+
+  @@map("mesas")
+}
+
+model MenuItem {
+  id            String  @id @default(uuid())
+  restauranteId String  @map("restaurante_id")
+  nombre        String
+  descripcion   String?
+  precio        Decimal @db.Decimal(10, 2)
+  codigoInterno String? @map("codigo_interno")
+  disponible    Boolean @default(true)
+
+  restaurante Restaurante  @relation(fields: [restauranteId], references: [id])
+  pedidoItems PedidoItem[]
+
+  @@map("menu_items")
+}
+
+// Una cuenta = la mesa "abierta" durante toda la comida. El índice único
+// (ver migración) garantiza que nunca haya dos cuentas abiertas a la vez
+// para la misma mesa.
+model Cuenta {
+  id            String    @id @default(uuid())
+  restauranteId String    @map("restaurante_id")
+  mesaId        String    @map("mesa_id")
+  estado        String    @default("abierta")
+  duenioToken   String    @unique @map("dueño_token")
+  abiertaEn     DateTime  @default(now()) @map("abierta_en")
+  cerradaEn     DateTime? @map("cerrada_en")
+
+  restaurante Restaurante @relation(fields: [restauranteId], references: [id])
+  mesa        Mesa        @relation(fields: [mesaId], references: [id])
+  pedidos     Pedido[]
+  eventos     Evento[]
+
+  @@map("cuentas")
+}
+
+model Pedido {
+  id            String   @id @default(uuid())
+  restauranteId String   @map("restaurante_id")
+  cuentaId      String   @map("cuenta_id")
+  estado        String   @default("recibido")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+
+  restaurante Restaurante  @relation(fields: [restauranteId], references: [id])
+  cuenta      Cuenta       @relation(fields: [cuentaId], references: [id])
+  items       PedidoItem[]
+
+  @@map("pedidos")
+}
+
+model PedidoItem {
+  id             String  @id @default(uuid())
+  pedidoId       String  @map("pedido_id")
+  menuItemId     String  @map("menu_item_id")
+  cantidad       Int
+  notas          String?
+  precioUnitario Decimal @map("precio_unitario") @db.Decimal(10, 2)
+
+  pedido   Pedido   @relation(fields: [pedidoId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@map("pedido_items")
+}
+
+// Tabla outbox: fuente de verdad del canal de tiempo real. Pedido + evento
+// se escriben siempre en la misma transacción (ver routes/pedidos.ts).
+model Evento {
+  id            BigInt   @id @default(autoincrement())
+  restauranteId String   @map("restaurante_id")
+  cuentaId      String?  @map("cuenta_id")
+  tipo          String
+  payload       Json
+  creadoEn      DateTime @default(now()) @map("creado_en")
+
+  restaurante Restaurante @relation(fields: [restauranteId], references: [id])
+  cuenta      Cuenta?     @relation(fields: [cuentaId], references: [id])
+
+  @@index([cuentaId, id])
+  @@index([restauranteId, id])
+  @@map("eventos")
+}
+
+model StaffCaja {
+  id            String @id @default(uuid())
+  restauranteId String @map("restaurante_id")
+  nombre        String
+  usuario       String
+  pinHash       String @map("pin_hash")
+  rol           String @default("caja")
+
+  restaurante Restaurante @relation(fields: [restauranteId], references: [id])
+
+  @@map("staff_caja")
+}

@@ -1,0 +1,36 @@
+{
+  "name": "restaurante-pedidos-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "staff:crear": "tsx scripts/crear-staff.ts"
+  },
+  "allowScripts": {
+  "@prisma/client": true,
+  "@prisma/engines": true,
+  "esbuild": true,
+  "prisma": true
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@prisma/client": "^5.19.1",
+    "dotenv": "^18.0.3",
+    "fastify": "^4.28.1",
+    "fastify-plugin": "^4.5.1",
+    "zod": "^3.23.8",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.15",
+    "prisma": "^5.19.1",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4",
+    "@types/jsonwebtoken": "^9.0.7"
+  }
+}
