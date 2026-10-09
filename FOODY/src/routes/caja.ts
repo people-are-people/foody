@@ -46,7 +46,7 @@ export default async function cajaRoutes(app: FastifyInstance) {
       const { restauranteId } = restauranteParamsSchema.parse(request.params);
       return app.prisma.cuenta.findMany({
         where: { restauranteId, estado: 'abierta' },
-        include: { mesa: true, pedidos: { include: { items: true } } },
+        include: { mesa: true, pedidos: { where: { estado: { not: 'cancelado' } }, include: { items: true } } },
       });
     },
   );
@@ -58,7 +58,13 @@ export default async function cajaRoutes(app: FastifyInstance) {
       const { cuentaId } = cuentaParamsSchema.parse(request.params);
       const cuenta = await app.prisma.cuenta.findUnique({
         where: { id: cuentaId },
-        include: { mesa: true, pedidos: { include: { items: { include: { menuItem: true } } } } },
+        include: {
+                    mesa: true,
+                    pedidos: {
+                      where: { estado: { not: 'cancelado' } },
+                      include: { items: { include: { menuItem: true } } },
+                    },
+                  },
       });
       if (!cuenta) return reply.code(404).send({ error: 'cuenta no encontrada' });
       return cuenta;
