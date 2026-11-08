@@ -159,6 +159,7 @@ class _PedidoCard extends StatelessWidget {
     if (confirmar != true) return;
 
     final ok = await sesion.cancelarPedido(pedido.id);
+    if (sesion.cuentaCerrada) return;
     messenger.showSnackBar(
       SnackBar(
         content: Text(

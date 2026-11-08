@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/sesion_provider.dart';
-import 'menu_screen.dart';
 
 /// Pantalla de prueba: permite simular el escaneo de un QR escribiendo
 /// los datos a mano. Útil mientras no hay impresos QR reales para
@@ -35,11 +34,7 @@ class _UnionManualScreenState extends State<UnionManualScreen> {
             restaurante: _restauranteCtrl.text.trim(),
             mesa: _mesaCtrl.text.trim(),
           );
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MenuScreen()),
-        );
-      }
+      if (mounted) Navigator.of(context).pop();
     } catch (e) {
       setState(() => _error = '$e');
     } finally {

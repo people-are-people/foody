@@ -8,7 +8,7 @@ export interface StaffTokenPayload {
 }
 
 export function firmarTokenStaff(payload: StaffTokenPayload): string {
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '12h' });
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '12h' });//cambiar para probar a 3m
 }
 
 export function verificarTokenStaff(token: string): StaffTokenPayload {

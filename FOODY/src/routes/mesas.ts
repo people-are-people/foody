@@ -10,7 +10,11 @@ const paramsSchema = z.object({
 export default async function mesasRoutes(app: FastifyInstance) {
   app.post('/restaurantes/:restauranteId/mesas/:mesaId/unirse', async (request, reply) => {
     const { restauranteId, mesaId } = paramsSchema.parse(request.params);
-
+    const mesa = await app.prisma.mesa.findFirst({
+          where: { id: mesaId, restauranteId },
+          select: { id: true },
+        });
+    if (!mesa) return reply.code(404).send({ error: 'mesa no encontrada' });
     const cuentaAbierta = await app.prisma.cuenta.findFirst({
       where: { mesaId, estado: 'abierta' },
     });

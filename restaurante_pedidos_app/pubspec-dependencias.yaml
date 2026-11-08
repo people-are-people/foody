@@ -1,0 +1,8 @@
+# Esto NO reemplaza tu pubspec.yaml — flutter create ya te generó uno
+# completo con la configuración nativa correcta. Simplemente copiá estas
+# líneas dentro de la sección "dependencies:" que ya tenés.
+
+  http: ^1.2.2
+  mobile_scanner: ^5.2.3
+  shared_preferences: ^2.3.2
+  provider: ^6.1.2

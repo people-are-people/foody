@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'state/sesion_provider.dart';
-import 'screens/qr_scan_screen.dart';
+import 'screens/gracias_screen.dart';
 import 'screens/menu_screen.dart';
+import 'screens/qr_scan_screen.dart';
 
 void main() {
   runApp(const App());
@@ -24,8 +25,9 @@ class App extends StatelessWidget {
   }
 }
 
-/// Al abrir la app, primero intenta restaurar una sesión de mesa
-/// guardada (ver SesionStore). Si no hay ninguna, manda a escanear.
+/// Única pantalla que decide qué se muestra, según el estado de la sesión:
+/// agradecimiento (cuenta cerrada), menú (hay sesión) o escaneo (no hay).
+/// Las demás pantallas no navegan entre sí para que esto siempre pueda reaccionar.
 class _PantallaInicial extends StatefulWidget {
   const _PantallaInicial();
 
@@ -52,7 +54,18 @@ class _PantallaInicialState extends State<_PantallaInicial> {
     if (_cargando) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    final tieneSesion = context.watch<SesionProvider>().tieneSesion;
-    return tieneSesion ? const MenuScreen() : const QrScanScreen();
+
+    final sesion = context.watch<SesionProvider>();
+
+    if (sesion.cuentaCerrada) {
+      // Si había algo abierto encima (el resumen del pedido, un diálogo),
+      // se cierra para que el agradecimiento no quede tapado.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+      });
+      return const GraciasScreen();
+    }
+
+    return sesion.tieneSesion ? const MenuScreen() : const QrScanScreen();
   }
 }

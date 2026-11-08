@@ -13,6 +13,14 @@ export default async function menuRoutes(app: FastifyInstance) {
     return app.prisma.menuItem.findMany({
       where: { restauranteId, disponible: true },
       orderBy: { nombre: 'asc' },
+      select: {
+        id: true,
+        restauranteId: true,
+        nombre: true,
+        descripcion: true,
+        precio: true,
+        disponible: true,
+      },
     });
   });
 }

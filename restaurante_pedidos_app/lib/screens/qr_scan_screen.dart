@@ -3,7 +3,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../config/qr_payload.dart';
 import '../state/sesion_provider.dart';
-import 'menu_screen.dart';
 import 'union_manual_screen.dart';
 
 class QrScanScreen extends StatefulWidget {
@@ -39,12 +38,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
         apiUrl: payload.apiBaseUrl,
         restaurante: payload.restauranteId,
         mesa: payload.mesaId,
-      );
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MenuScreen()),
-        );
-      }
+      );      
     } catch (e) {
       setState(() {
         _error = 'No se pudo unir a la mesa: $e';
